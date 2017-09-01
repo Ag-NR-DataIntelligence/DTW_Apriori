@@ -1,16 +1,4 @@
-source('https://raw.githubusercontent.com/ZyuAFD/OptiRTCCode/master/Project/Library%20and%20Style%20Load.R')
-
-# Round to closest 5 min step
-source('https://raw.githubusercontent.com/ZyuAFD/OptiRTCCode/master/Project/GeneralFuns.R')
-
-
-library(tidyverse)
-library(magrittr)
-library(lubridate)
-library(RcppRoll)
-library(data.table)
-library(arules)
-library(scales)
+source('https://raw.githubusercontent.com/ZyuAFD/DTW_Apriori/master/Src/External%20Functions%20and%20librarys.R')
 
 # Data load
 # Data from Alex on Golda Meir ----------------
@@ -37,3 +25,5 @@ GoldaMeir_Dt_Feb2017=fread(filepath,
               Est_South_SoilM=mean(Est_South_SoilM,na.rm=T),
               Est_SouthCtr_SoilM=mean(Est_SouthCtr_SoilM,na.rm=T),
               Est_SoilM=mean(Est_SoilM,na.rm=T))
+
+rm(path,file)
