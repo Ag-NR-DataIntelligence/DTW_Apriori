@@ -12,7 +12,7 @@ align_pal=function(Dt,Tslist_val)
     
     Val_convert=function(x,method='Zscore')
     {
-        if (method=='zscore') 
+        if (method=='Zscore') 
         {
             return(zscore(x))
             
@@ -27,7 +27,7 @@ align_pal=function(Dt,Tslist_val)
                   .multicombine = TRUE,
                   .packages=c('dtw','dtwclust')) %dopar%
                   {
-                      Dist=dtw(Val_convert(Dt,'RMAvg'),Val_convert(Tslist_val[[n]],'RMAvg'),keep=TRUE
+                      Dist=dtw(Val_convert(Dt,'Zscore'),Val_convert(Tslist_val[[n]],'Zscore'),keep=TRUE
                                ,open.end = T
                       )$normalizedDistance  # Distance per step
                       

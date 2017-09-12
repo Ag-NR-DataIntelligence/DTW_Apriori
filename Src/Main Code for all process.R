@@ -21,7 +21,7 @@ Event_info=lapply(Evt_Chara$Evt_n,Labeling_Evt_Character, Evt_Chara=Evt_Chara,Di
     filter(Jday=='in_season') # only included events in season
 
 ### 5 Apriori Algorithm-----------------------------
-source('https://github.com/ZyuAFD/DTW_Apriori/blob/master/Src/Apriori%20functions.R')
+source('https://raw.githubusercontent.com/ZyuAFD/DTW_Apriori/master/Src/Apriori%20functions.R')
 
 Patterns=MatchEvtPtn(Event_info) 
 Pt_freq_df=Patterns[[1]]
