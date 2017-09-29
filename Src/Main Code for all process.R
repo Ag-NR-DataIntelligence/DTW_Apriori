@@ -1,5 +1,6 @@
 # Process to Run the DTW with Apriori Algorithm
 
+source('https://raw.githubusercontent.com/ZyuAFD/SWRE_Project/master/General-Functions/EmailCompleteMsg.R')
 # Data Loading Functions
 source('https://raw.githubusercontent.com/ZyuAFD/DTW_Apriori/master/Src/Data%20Loading.R')
 # Data Arrangement Functions
