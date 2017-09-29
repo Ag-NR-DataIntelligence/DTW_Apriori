@@ -7,7 +7,7 @@ align_pal=function(Dt,Tslist_val)
     
     #setup parallel backend to use many processors
     cores=detectCores()
-    cl <- makeCluster(cores[1]-2) #not to overload your computer
+    cl <- makeCluster(cores[1]) #not to overload your computer
     registerDoParallel(cl)
     
     Val_convert=function(x,method='Zscore')
