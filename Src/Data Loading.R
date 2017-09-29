@@ -2,7 +2,7 @@ source('https://raw.githubusercontent.com/ZyuAFD/DTW_Apriori/master/Src/External
 
 # Data load
 # Data from Alex on Golda Meir ----------------
-path='F:\\Projects\\Opti\\Golda Meir DTW and Apriori\\data\\'
+path='Data\\'
 file='gold-meir-2017-feb-download.csv'
 filepath=paste0(path,file)
 
