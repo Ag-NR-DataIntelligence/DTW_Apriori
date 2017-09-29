@@ -369,27 +369,26 @@ ggsave('Images\\Multi Sensors.jpg',width = 8, height = 5, units = c("in"))
 
 ## Change of adding PC dimension------------------------
 
-ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season .* RainPd_hr_diff=80-100'
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=80-100 RainPd_hr_diff=80-100'
 Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
     left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
     select(Evt_n,Ref_Evt,Dist) %>% 
     filter(Evt_n=='22') ->Evt_Cat1
 
-
-ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=80-100 RainPd_hr_diff=80-100'
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season .* RainPd_hr_diff=80-100'
 Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
     left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
     select(Evt_n,Ref_Evt,Dist) %>% 
     filter(Evt_n=='22') ->Evt_Cat2
 
-Evt_Cat1 = anti_join(Evt_Cat1, Evt_Cat2, by = "Ref_Evt")
+Evt_Cat2 = anti_join(Evt_Cat2, Evt_Cat1, by = "Ref_Evt")
 
 rbind(Dt_5min_cure %>% 
         mutate(PC='PC Difference Percentile < 80%') %>% 
-        left_join(Evt_Cat1[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
+        left_join(Evt_Cat2[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
     Dt_5min_cure %>% 
         mutate(PC='PC Difference Percentile >= 80%') %>% 
-        left_join(Evt_Cat2[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt'))
+        left_join(Evt_Cat1[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt'))
     ) %>% 
     mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat1$Evt_n,'Dist=Targeted Event',Dist)) %>% 
@@ -423,6 +422,87 @@ rbind(Dt_5min_cure %>%
     theme(legend.position="bottom")
 
 ggsave('Images\\Multi Sensors with PC.jpg',width = 8, height = 8, units = c("in"))
+
+#  View impact on PC dimension ------------------------
+
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=80-100 RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat1
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=60-80 RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat2
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=40-60 RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat3
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=20-40 RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat4
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=0-20 RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat5
+
+rbind(Dt_5min_cure %>% 
+          mutate(PC='PC Difference > 80%') %>% 
+          left_join(Evt_Cat1[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
+      Dt_5min_cure %>% 
+          mutate(PC='PC Difference 60% ~ 80%') %>% 
+          left_join(Evt_Cat2[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
+      Dt_5min_cure %>% 
+          mutate(PC='PC Difference 40% ~ 60%') %>% 
+          left_join(Evt_Cat3[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
+      Dt_5min_cure %>% 
+          mutate(PC='PC Difference 20% ~ 40%') %>% 
+          left_join(Evt_Cat4[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
+      Dt_5min_cure %>% 
+          mutate(PC='PC Difference 0% ~ 20%') %>% 
+          left_join(Evt_Cat5[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt'))
+) %>% 
+    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
+    mutate(Dist=ifelse(Evt_n %in% Evt_Cat1$Evt_n,'Dist=Targeted Event',Dist)) %>% 
+    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=substring(Dist,6)) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    filter(between(Time,ymd('2015-10-15'),ymd('2015-12-1'))|between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
+    ggplot()+
+    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
+    facet_grid(PC~year(Time),scales = "free")+
+    ylab('Soil Moisture with Imperfect Calibration')+
+    xlab('')+
+    scale_size(guide = 'none')+
+    scale_shape_manual('',
+                       breaks=c('NorthCtr','South','SouthCtr'),
+                       values=c(17,15,16))+
+    scale_color_manual('',
+                       breaks = c( "Ambiguous",
+                                   "Match", 
+                                   "Not of Sample PEFD",
+                                   "Targeted Event",
+                                   "Unmatch"),
+                       values=c("orange", 
+                                "red", 
+                                "grey",
+                                "green",
+                                "blue"))+
+    theme_bw()+
+    theme(legend.position="bottom")
+
 
 
 # Multi sensor test data applied with algorithm ---------------------------
