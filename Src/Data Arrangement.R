@@ -74,7 +74,8 @@ Dt_5min_cure_South4test=Dt_5min_cure %>%
 # Combining data ----------------------------
 Dt_5min_cure=rbind(Dt_5min_cure_SouthCtr,
                    Dt_5min_cure_NorthCtr,
-                   Dt_5min_cure_South)
+                   Dt_5min_cure_South) %>% 
+    mutate(Evt_n=as.character(Evt_n))
 
 Dt_5min_4test=rbind(Dt_5min_cure_South4test %>% mutate(Evt_n=paste0('South',as.character(Evt_n))),
                     Dt_5min_cure_NorthCtr4test %>% mutate(Evt_n=paste0('NorthCtr',as.character(Evt_n))))
@@ -88,7 +89,8 @@ Dt_5min_cure %<>%
                           align='center',
                           fill=NA,
                           na.rm=T)) %>% 
-    ungroup 
+    ungroup %>% 
+    filter(!is.na(SoilM)) 
 
 
 Dt_5min_4test %<>% 
@@ -99,4 +101,5 @@ Dt_5min_4test %<>%
                           align='center',
                           fill=NA,
                           na.rm=T)) %>% 
-    ungroup 
+    ungroup %>% 
+    filter(!is.na(SoilM)) 

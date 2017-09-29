@@ -55,7 +55,7 @@ EvtDist_Cal=function(Tslist,Evt_ID)
     dist.df$Evt=Evt_ID
     dist.df %>% 
         gather(.,'Ref','Dist',1:Dim) %>% 
-        mutate(Ref=as.numeric(Ref)) %>% 
+        mutate(Ref=as.character(Ref)) %>% 
         return
 }
 
@@ -67,7 +67,7 @@ DTW_dist_cal=function(dt)
     #SoilM
 {
     
-    dt %>%
+    dt %>% 
         select(Evt_n,SoilM) %>% 
         group_by(Evt_n) %>% 
         do(vals=.$SoilM) ->Evt_SoilM_Ts

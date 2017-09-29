@@ -169,191 +169,6 @@ x[1,]-x[2,]
 Dist.df %>% filter(Evt==65,Ref==60)
 Event_info %>% filter(Ref_Evt==65, Evt_n==60) %>% head()
 
-
-# Results plots -------------------------------
-
-#  Match relationship
-ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season RainPd_hr_diff=80-100'
-Pt_freq_df %<>% 
-    mutate(lhs=as.character(lhs),rhs=as.character(rhs))
-Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
-    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
-    select(Evt_n,Ref_Evt,Dist)-> Evt_Cat
-
-
-Dt_5min_cure %>% 
-    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
-    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
-    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
-    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
-    mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2015-10-1'),ymd('2015-12-1'))|between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
-    ggplot()+
-    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
-    facet_grid(~year(Time),scales = "free")+
-    ylab('Soil Moisture with Imperfect Calibration')+
-    x('')+
-    scale_size(guide = 'none')+
-    scale_color_manual('',
-                       breaks = c( "Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"),
-                       values=c("orange", "red", "grey","green","blue"))+
-    theme_bw()+
-    theme(legend.position="bottom")
-
-
-ggsave('Images\\Single Sensor Matched Events.jpg',width = 8, height = 5, units = c("in"))
-
-
-# Unmatched relationship---------------------------------
-ptn='AvgT_diff=40-60 DryPd_hr_diff=0-20 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season RainPd_hr_diff=80-100'
-Pt_freq_df %<>% 
-    mutate(lhs=as.character(lhs),rhs=as.character(rhs))
-Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
-    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
-    select(Evt_n,Ref_Evt,Dist)-> Evt_Cat
-
-
-Dt_5min_cure %>% 
-    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
-    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
-    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
-    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
-    mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2016-4-1'),ymd('2016-6-1'))) %>% 
-    ggplot()+
-    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
-    ylab('Soil Moisture with Imperfect Calibration')+
-    xlab('')+
-    #xlim(ymd('2016-4-1'),ymd('2016-6-1'))+
-    scale_size(guide = 'none')+
-    scale_color_manual('',
-                       breaks = c( "Not of Sample PEFD","Targeted Event","Unmatch"),
-                       values=c( "grey","green","blue"))+
-    theme_bw()+
-    theme(legend.position="bottom")
-
-ggsave('Images\\Single Sensor UnMatched Events.jpg',width = 8, height = 5, units = c("in"))
-
-
-
-
-
-
-
-
-
-ptn='AvgT_diff=40-60 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=60-80 Jday_diff=in_season RainPd_hr_diff=40-60 PC_diff=20-40'
-Pt_freq_df %<>% 
-    mutate(lhs=as.character(lhs),rhs=as.character(rhs))
-Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
-    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
-    select(Evt_n,Ref_Evt,Dist)-> Evt_Cat
-
-
-Dt_5min_cure %>% 
-    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
-    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
-    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
-    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
-    mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2016-1-1'),ymd('2016-10-1'))) %>% 
-    ggplot()+
-    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
-    ylab('Soil Moisture with Imperfect Calibration')+
-    xlab('')+
-    #xlim(ymd('2016-4-1'),ymd('2016-6-1'))+
-    scale_size(guide = 'none')+
-    scale_color_manual('',
-                       breaks = c( "Match","Not of Sample PEFD","Targeted Event"),
-                       values=c( "green","grey","blue"))+
-    theme_bw()+
-    theme(legend.position="bottom")
-
-
-# Pattern with all relationships--------------------------
-ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=20-40 EvtP_diff=0-20 Jday_diff=in_season RainPd_hr_diff=0-20'
-Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
-    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
-    select(Evt_n,Ref_Evt,Dist)-> Evt_Cat
-
-Evt_Cat %<>% 
-    filter(Evt_n==60)
-Dt_5min_cure %>% 
-    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
-    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
-    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
-    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
-    mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2016-4-1'),ymd('2016-6-1'))) %>% 
-    ggplot()+
-    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
-    ylab('Soil Moisture with Imperfect Calibration')+
-    xlab('')+
-    #xlim(ymd('2016-4-1'),ymd('2016-6-1'))+
-    scale_size(guide = 'none')+
-    scale_color_manual('',
-                       breaks = c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"),
-                       values=c("orange", "red", "grey","green","blue"))+
-    theme_bw()+
-    theme(legend.position="bottom")
-
-ggsave('Images\\Single Sensor All relationship Events.jpg',width = 8, height = 5, units = c("in"))
-
-# Multiple sensors ----------------------------------
-
-Pt_freq_df %>% 
-    filter(lhs=='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season RainPd_hr_diff=80-100')
-#  Match relationship
-ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season RainPd_hr_diff=80-100'
-Pt_freq_df %<>% 
-    mutate(lhs=as.character(lhs),rhs=as.character(rhs))
-Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
-    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
-    select(Evt_n,Ref_Evt,Dist)-> Evt_Cat
-
-Evt_Cat %<>% 
-    filter(Evt_n==22)
-
-Dt_5min_cure %>% 
-    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
-    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
-    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Reference Event',Dist)) %>% 
-    mutate(Dist=ifelse(is.na(Dist),'Dist=Not Same Pattern',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
-    mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not Same Pattern","Reference Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2015-10-15'),ymd('2015-12-1')) | between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
-    ggplot()+
-    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
-    facet_grid(~year(Time),scales = "free")+
-    ylab('Soil Moisture with Imperfect Calibration')+
-    xlab('')+
-    scale_size(guide = 'none')+
-    scale_shape_manual('',
-                       breaks=c('NorthCtr','South','SouthCtr'),
-                       values=c(17,15,16))+
-    scale_color_manual('',
-                       breaks = c( "Ambiguous","Match", "Not Same Pattern","Reference Event","Unmatch"),
-                       values=c("orange", "red", "grey","green","blue"))+
-    theme_bw()+
-    theme(legend.position="bottom")
-
-ggsave('Images\\Multi Sensors.jpg',width = 8, height = 5, units = c("in"))
-
-
 #Demonstrate paired event feature---------------------------------
 
 Target_refEvt=22
@@ -403,26 +218,234 @@ Dt_5min_cure %>%
 ggsave('Images\\Demonstration of pattern match events.jpg',width = 8, height = 5.5, units = c("in"))
 
 
+# Results plots -------------------------------
+
+#  Match relationship
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season .* RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist)  ->Evt_Cat
+
+
+Dt_5min_cure %>% 
+    filter(Probe=='SouthCtr') %>% 
+    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
+    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
+    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
+    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=substring(Dist,6)) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    filter(between(Time,ymd('2015-10-1'),ymd('2015-12-1'))|between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
+    ggplot()+
+    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
+    facet_grid(~year(Time),scales = "free")+
+    ylab('Soil Moisture with Imperfect Calibration')+
+    xlab('')+
+    scale_size(guide = 'none')+
+    scale_color_manual('',
+                       breaks = c( "Ambiguous", 
+                                   "Match", 
+                                   "Not of Sample PEFD","Targeted Event"#,"Unmatch"
+                                   ),
+                       values=c("orange", 
+                                "red", 
+                                "grey","green"#,"blue"
+                                ))+
+    theme_bw()+
+    theme(legend.position="bottom")
+
+
+ggsave('Images\\Single Sensor Matched Events.jpg',width = 8, height = 5, units = c("in"))
+
+
+# Unmatched relationship---------------------------------
+ptn='AvgT_diff=40-60 DryPd_hr_diff=0-20 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season .* RainPd_hr_diff=80-100'
+
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='73') -> Evt_Cat
+
+
+Dt_5min_cure %>% 
+    filter(Probe=='SouthCtr') %>% 
+    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
+    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
+    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
+    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=substring(Dist,6)) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    filter(between(Time,ymd('2016-4-1'),ymd('2016-6-1'))) %>% 
+    ggplot()+
+    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
+    ylab('Soil Moisture with Imperfect Calibration')+
+    xlab('')+
+    scale_size(guide = 'none')+
+    scale_color_manual('',
+                       breaks = c( "Not of Sample PEFD","Targeted Event","Unmatch"),
+                       values=c( "grey","green","blue"))+
+    theme_bw()+
+    theme(legend.position="bottom")
+
+ggsave('Images\\Single Sensor UnMatched Events.jpg',width = 8, height = 5, units = c("in"))
+
+
+
+# Pattern with all relationships--------------------------
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=20-40 EvtP_diff=0-20 Jday_diff=in_season .* RainPd_hr_diff=0-20'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n==60)-> Evt_Cat
+
+
+Dt_5min_cure %>% 
+    filter(Probe=='SouthCtr') %>% 
+    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
+    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
+    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
+    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=substring(Dist,6)) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    filter(between(Time,ymd('2016-4-1'),ymd('2016-6-1'))) %>% 
+    ggplot()+
+    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
+    ylab('Soil Moisture with Imperfect Calibration')+
+    xlab('')+
+    #xlim(ymd('2016-4-1'),ymd('2016-6-1'))+
+    scale_size(guide = 'none')+
+    scale_color_manual('',
+                       breaks = c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"),
+                       values=c("orange", "red", "grey","green","blue"))+
+    theme_bw()+
+    theme(legend.position="bottom")
+
+ggsave('Images\\Single Sensor All relationship Events.jpg',width = 8, height = 5, units = c("in"))
+
+# Multiple sensors ----------------------------------
+
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season .* RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n==22)->Evt_Cat
+
+
+Dt_5min_cure %>% 
+    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
+    left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
+    mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
+    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=substring(Dist,6)) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    filter(between(Time,ymd('2015-10-15'),ymd('2015-12-1')) | between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
+    ggplot()+
+    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
+    facet_grid(~year(Time),scales = "free")+
+    ylab('Soil Moisture with Imperfect Calibration')+
+    xlab('')+
+    scale_size(guide = 'none')+
+    scale_shape_manual('',
+                       breaks=c('NorthCtr','South','SouthCtr'),
+                       values=c(17,15,16))+
+    scale_color_manual('',
+                       breaks = c( "Ambiguous","Match", "Not of Sample PEFD","Targeted Event","Unmatch"),
+                       values=c("orange", "red", "grey","green","blue"))+
+    theme_bw()+
+    theme(legend.position="bottom")
+
+ggsave('Images\\Multi Sensors.jpg',width = 8, height = 5, units = c("in"))
+
+
+
+## Change of adding PC dimension------------------------
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season .* RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat1
+
+
+ptn='AvgT_diff=0-20 DryPd_hr_diff=40-60 Dur_hr_diff=40-60 EvtP_diff=80-100 Jday_diff=in_season PC_diff=80-100 RainPd_hr_diff=80-100'
+Soil_Seq_ts[grep(ptn,Soil_Seq_ts$Patn),c('Evt_n','Ref_Evt','Dist','Patn')] %>% 
+    left_join(Pt_freq_df,by=c('Patn'='lhs','Dist'='rhs')) %>% 
+    select(Evt_n,Ref_Evt,Dist) %>% 
+    filter(Evt_n=='22') ->Evt_Cat2
+
+Evt_Cat1 = anti_join(Evt_Cat1, Evt_Cat2, by = "Ref_Evt")
+
+rbind(Dt_5min_cure %>% 
+        mutate(PC='PC Difference Percentile < 80%') %>% 
+        left_join(Evt_Cat1[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')),
+    Dt_5min_cure %>% 
+        mutate(PC='PC Difference Percentile >= 80%') %>% 
+        left_join(Evt_Cat2[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt'))
+    ) %>% 
+    mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
+    mutate(Dist=ifelse(Evt_n %in% Evt_Cat1$Evt_n,'Dist=Targeted Event',Dist)) %>% 
+    mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=substring(Dist,6)) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    filter(between(Time,ymd('2015-10-15'),ymd('2015-12-1'))|between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
+    ggplot()+
+    geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
+    facet_grid(PC~year(Time),scales = "free")+
+    ylab('Soil Moisture with Imperfect Calibration')+
+    xlab('')+
+    scale_size(guide = 'none')+
+    scale_shape_manual('',
+                       breaks=c('NorthCtr','South','SouthCtr'),
+                       values=c(17,15,16))+
+    scale_color_manual('',
+                       breaks = c( "Ambiguous",
+                                   "Match", 
+                                   "Not of Sample PEFD",
+                                   "Targeted Event",
+                                   "Unmatch"),
+                       values=c("orange", 
+                                "red", 
+                                "grey",
+                                "green",
+                                "blue"))+
+    theme_bw()+
+    theme(legend.position="bottom")
+
+ggsave('Images\\Multi Sensors with PC.jpg',width = 8, height = 8, units = c("in"))
+
+
 # Multi sensor test data applied with algorithm ---------------------------
 
-Evt_Diff %>% 
-    select(-ends_with('_val')) %>% 
+New_Event_info %>% 
     filter(Jday_diff=='Jday_diff=in_season') %>% 
-    unite(pattern,AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,RainPd_hr_diff,sep=' ') %>% 
+    unite(pattern,AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,PC_diff,RainPd_hr_diff,sep=' ') %>% 
     left_join(Pt_freq_df,by=c('pattern'='lhs')) %>% 
     filter(!is.na(rhs),
            lift>1,
+           support>0.0001,
            confidence>=0.8,
            rhs=='Dist=TRUE') %>% 
-    group_by(NewEvt_n,rhs) %>% 
-    summarise(Overall_Conf=sum(support*confidence)/sum(support),
-              Overall_Sup=sum(support)) ->results
+    group_by(Evt_n,rhs) %>% 
+    summarise(Overall_Conf=sum(support*confidence,na.rm=T)/sum(support,na.rm=T),
+              Overall_Sup=sum(support,na.rm=T)) ->results
 
 
 
 
 Dt_5min_4test %>% 
-    left_join(results,by=c('Evt_n'='NewEvt_n')) %>% #select(-Overall_Conf,-Overall_Sup) %>% 
+    #Dt_5min_4test2 %>% 
+    left_join(results,by=c('Evt_n'='Evt_n')) %>% #select(-Overall_Conf,-Overall_Sup) %>% 
     #rbind(data.frame(Dt_5min_cure,rhs='Training Data')) %>% 
     mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
     mutate(rhs=ifelse(is.na(rhs),'Not of existing PEFDs',rhs)) %>% 
@@ -431,17 +454,18 @@ Dt_5min_4test %>%
     mutate(rhs=ifelse(rhs=='Dist=Ambiguous','Ambiguous',rhs)) %>% 
     #mutate(rhs=factor(rhs,levels=c( "Match","Unmatch", "Not Found Pattern","Training Data","Ambiguous"))) %>% 
     #filter(between(Time,ymd('2016-07-10'),ymd('2016-09-11'))) %>% 
-    mutate(Confidence=ifelse(is.na(Overall_Conf),'Unconfident to be match',paste0(as.character(Overall_Conf %/% 0.05*5),'% onfidence'))) %>% #distinct(Confidence)
+    mutate(Confidence=ifelse(is.na(Overall_Conf),'Unconfident to be match',paste0(as.character(Overall_Conf %/% 0.05*5),'%'))) %>% #distinct(Confidence)
+
     ggplot()+
-    geom_line(data=data.frame(Dt_5min_cure,rhs='Training data'),aes(x=Time,y=SoilM,linetype=Probe,color=rhs),size=1)+
+    #geom_line(data=data.frame(Dt_5min_cure,rhs='Training data'),aes(x=Time,y=SoilM,linetype=Probe,color=rhs),size=1)+
     geom_point(aes(x=Time,y=SoilM,shape=Probe,color=Confidence,size=Evt_St),alpha=0.5)+
     labs(y='Soil Moisture with Imperfect Calibration',
          x='')+
     scale_size(guide='none')+
-    scale_color_manual('',
-                       breaks = c( "Match", "Not Found Pattern","Training Data","Unmatch"),
-                       values=c( "red", "grey","palegreen3","blue")
-    )+
+    # scale_color_manual('',
+    #                    breaks = c( "Match", "Not Found Pattern","Training Data","Unmatch"),
+    #                    values=c( "red", "grey","palegreen3","blue")
+    # )+
     scale_linetype_manual(guide='none',
                           breaks = c( "NorthCtr","SouthCtr", "South"),
                           values=c( 1,1,1)
@@ -456,7 +480,7 @@ ggsave('Images\\Multi sensor test data applied with algorithm.jpg',width = 8, he
 
 
 Dt_5min_4test %>% 
-    left_join(results,by=c('Evt_n'='NewEvt_n')) %>% 
+    left_join(results,by=c('Evt_n'='Evt_n')) %>% 
     mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
     mutate(rhs=ifelse(is.na(rhs),'Not of existing PEFDs',rhs)) %>% 
     mutate(rhs=ifelse(rhs=='Dist=TRUE','Match',rhs)) %>% 
@@ -464,13 +488,13 @@ Dt_5min_4test %>%
     mutate(rhs=ifelse(rhs=='Dist=Ambiguous','Ambiguous',rhs)) %>% 
     mutate(Confidence=ifelse(is.na(Overall_Conf),'Unconfident to be match',paste0(as.character(Overall_Conf %/% 0.05*5),'% onfidence'))) %>% #distinct(Evt_n)
     group_by(Evt_n) %>% 
-    mutate(SoilM_z=(SoilM-mean(SoilM))/sd(SoilM)) %>% 
+    mutate(SoilM_z=(SoilM-mean(SoilM))) %>% 
     filter(between(Time,ymd('2016-7-1'),ymd('2016-8-30'))) %>% 
     ggplot()+
     geom_point(data=Dt_5min_cure %>% 
                    filter(Probe=='SouthCtr',between(Time,ymd('2016-7-1'),ymd('2016-8-30'))) %>% 
                    group_by(Evt_n) %>% 
-                   mutate(SoilM_z=(SoilM-mean(SoilM))/sd(SoilM)),aes(x=Time,y=SoilM_z+3))+
+                   mutate(SoilM_z=(SoilM-mean(SoilM))),aes(x=Time,y=SoilM_z+0.1))+
     geom_point(aes(x=Time,y=SoilM_z,shape=Probe,color=Confidence,size=Evt_St),alpha=0.5)
 
 #data after 2017 feb

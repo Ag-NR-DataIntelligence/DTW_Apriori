@@ -9,16 +9,19 @@ MatchEvtPtn=function(Event_info)
     minLength=8 
     
     Event_info %>%
-        mutate(Items=paste(DryPd_hr_diff,RainPd_hr_diff,Dur_hr_diff,AvgT_diff,EvtP_diff,Jday_diff,
+        # These columns has to be ordered alphabetically
+        mutate(Items=paste(AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,PC_diff,RainPd_hr_diff,
                            #SoilM_SD_diff,SoilM_Avg_diff,
-                           PC_diff,
                            Dist,sep=','),
-               Patn=paste(AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,RainPd_hr_diff,
+               Patn=paste(AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,PC_diff,RainPd_hr_diff
                           #SoilM_SD_diff,SoilM_Avg_diff,
-                          PC_diff
                )) %>% 
         select(Evt_n,Ref_Evt,Items,Patn,Dist)->Soil_Seq_ts
     
+    Event_info %>%
+        # These columns has to be ordered alphabetically
+        unite(Items,sort(noquote(colnames(Event_info[,-c('Evt_n','Ref_Evt')]))),sep=',',remove=F) %>% 
+        unite(Patn,sort(noquote(colnames(Event_info[,-c('Evt_n','Ref_Evt','Dist','Items')]))),sep=',')
     
     Soil_Pt=as(lapply(Soil_Seq_ts %>%
                           select(Items) %>%
@@ -41,3 +44,7 @@ MatchEvtPtn=function(Event_info)
     list(Pt_freq_df,Soil_Seq_ts)%>% 
         return
 }
+
+
+
+
