@@ -26,36 +26,66 @@ Dist_threshold=Dist_thresholds(Dist.df)
 
 #### Generate PEFD
 Evt_Chara=Event_patterns(dt)
-Evt_Dif_quantile=lapply(Evt_Chara$Evt_n,Get_Evt_quantiles,Evt_Chara=Evt_Chara) %>% bind_rows()
-#get PC quantile
-PCquantile=lapply(Evt_Chara$Evt_n,PC_Dif_quantiles,Evt_Chara=Evt_Chara) %>% 
+
+Evt_Differences=lapply(
+    Evt_Chara$Evt_n,
+    Evt_Difs,
+    Ref_Evt_Chara=Evt_Chara,
+    Trgt_Evt_Chara=Evt_Chara) %>% 
+    bind_rows %>% 
+    as_data_frame()
+
+
+### Quantile group by each event------------
+Evt_Dif_quantile_ech_Evts=lapply(
+    Evt_Chara$Evt_n,
+    Get_Evt_quantiles_byech,
+    Evt_Chara=Evt_Chara) %>% 
     bind_rows() %>% 
-    pull(PC) %>% 
-    max %>% 
-    `/`(5) %>% 
-    `*`(c(1,2,3,4,5)) %>% 
-    signif(digit=4) %>% 
-    as.character() %>% 
-    paste(collapse=',') %>% 
-    rep(.,length(Evt_Chara$Evt_n))
+    {
+        #get PC quantile by all events
+        df=.
+        PC=Evt_Differences %>% 
+            pull(PC) %>% 
+            abs %>% 
+            max %>% 
+            `/`(5) %>% 
+            `*`(c(0,1,2,3,4,5)) %>% 
+            list()
+        df$PC_dif=PC
+        df
+    }
+
+Evt_Dif_quantile_ech_Evts=Get_Evt_quantiles_byech(Evt_Differences)
+
+### Quantile by all events---------
+
+Evt_Dif_quantile=Evt_Dif_quantiles(Evt_Differences)
 
 
+
+### Get event information for Apriori
 Event_info=lapply(Evt_Chara$Evt_n,
                   Labeling_Evt_Character, 
                   Ref_Evt_Chara=Evt_Chara,
                   Trgt_Evt_Chara=Evt_Chara,
                   Dist.df=Dist.df,
                   Dist_threshold=Dist_threshold,
-                  Evt_Dif_quantile=Evt_Dif_quantile) %>% 
+                  #Evt_Dif_quantile=Evt_Dif_quantile, # Using quantiles for all events
+                  Evt_Dif_quantile=Evt_Dif_quantile_ech_Evts,  # Using quantiles grouped by each event
+                  Evt_difs=Evt_Differences,
+                  AddPC=T) %>% 
     rbindlist(.) 
 
-
-#### Apriori Algorithm
-Patterns=MatchEvtPtn(Event_info) 
+#### Apriori Algorithm----------
+Patterns=MatchEvtPtn(Event_info,AddPC=T) 
 Pt_freq_df=Patterns[[1]] %>% 
     mutate(lhs=as.character(lhs),rhs=as.character(rhs))
 Soil_Seq_ts=Patterns[[2]] %>% 
-    separate(Items,c('AvgTdif','DryPddif','Durhrdif','EvtPdif','Jday','PCdif','RainPdhrdif','Distdif'),",")
+    # #Without PC
+    # separate(Items,c('AvgTdif','DryPddif','Durhrdif','EvtPdif','Jday','RainPdhrdif','Distdif'),",")
+# With PC
+separate(Items,c('AvgTdif','DryPddif','Durhrdif','EvtPdif','Jday','PCdif','RainPdhrdif','Distdif'),",")
 
 
 
@@ -65,12 +95,22 @@ Soil_Seq_ts=Patterns[[2]] %>%
 dt=Dt_5min_4test
 
 New_Evt_Chara=Event_patterns(dt)
+
+
+New_Evt_Differences=lapply(
+    Evt_Chara$Evt_n,
+    Evt_Difs,
+    Ref_Evt_Chara=Evt_Chara,
+    Trgt_Evt_Chara=New_Evt_Chara) %>% 
+    bind_rows %>% 
+    filter(Evt_n!=Ref_Evt)
+
 New_Event_info=lapply(Evt_Chara$Evt_n,
-                  Labeling_Evt_Character, 
-                  Ref_Evt_Chara=Evt_Chara,
-                  Trgt_Evt_Chara=New_Evt_Chara,
-                  Evt_Dif_quantile=Evt_Dif_quantile) %>% 
+                      Labeling_Evt_Character, 
+                      Ref_Evt_Chara=Evt_Chara,
+                      Trgt_Evt_Chara=New_Evt_Chara,
+                      #Evt_Dif_quantile=Evt_Dif_quantile, # Using quantiles for all events
+                      Evt_Dif_quantile=Evt_Dif_quantile_ech_Evts,  # Using quantiles grouped by each event
+                      Evt_difs=New_Evt_Differences,
+                      AddPC=T) %>% 
     rbindlist(.) 
-
-
-
