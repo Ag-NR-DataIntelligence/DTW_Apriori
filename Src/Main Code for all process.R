@@ -37,29 +37,9 @@ Evt_Differences=lapply(
 
 
 ### Quantile group by each event------------
-Evt_Dif_quantile_ech_Evts=lapply(
-    Evt_Chara$Evt_n,
-    Get_Evt_quantiles_byech,
-    Evt_Chara=Evt_Chara) %>% 
-    bind_rows() %>% 
-    {
-        #get PC quantile by all events
-        df=.
-        PC=Evt_Differences %>% 
-            pull(PC) %>% 
-            abs %>% 
-            max %>% 
-            `/`(5) %>% 
-            `*`(c(0,1,2,3,4,5)) %>% 
-            list()
-        df$PC_dif=PC
-        df
-    }
-
 Evt_Dif_quantile_ech_Evts=Get_Evt_quantiles_byech(Evt_Differences)
 
 ### Quantile by all events---------
-
 Evt_Dif_quantile=Evt_Dif_quantiles(Evt_Differences)
 
 
