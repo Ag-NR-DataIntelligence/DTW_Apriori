@@ -1,0 +1,37 @@
+---
+title: "Abnomral soil moisture pattern detection using Apriori and DTW"
+output: html_notebook
+---
+
+The repo contains the code for abnormal pattern detection method using Apriori and DTW applying on soil moisture data from OptiRTC.com. 
+
+The code files are categorized into 3 parts:
+
+* Data preparing 
+    + External Functions and librarys.R
+    + Functions for Data curation and arrangement.R
+    + Data Loading.R
+    + Data Arrangement.R
+    
+* Algorithm processing
+    + Main Code for all process.R
+    + Evt Chara Extract.R
+    + Apriori functions.R
+    + DTW functions.R
+    
+* Result plotting
+    + Plots of results.R
+
+
+Skip the data preparation process. The procedure of the whole algorithm is:
+
+1. Loading all calculation functions from the "Algorithm processing" files except "Main Code for all process.R"
+2. Calculate the Dynamic Time Warping (DTW) distance for all events and then calculate its threshold
+3. Calculate the feature of each event and generate Paired Event Feature Difference (PEFD)
+4. Generate the quantiles for each type of event features on 20%, 40%, 60%, 80%, 100% (two conditions: - quantiles independent between events - quantiles on all events)
+5. Convert the PEFD from continuous valus into categories based on quantiles 
+6. Apply Apriori functions on the categorized PEFD and get association rules
+7. Do step 3 and 5 for test dataset  
+8. Select association rules from step 6 results based on life, support and confidence and join to step 7 results and calculate overall confidence
+
+All the process can take "Main Code for all process.R" as a reference.
