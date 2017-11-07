@@ -103,3 +103,10 @@ Dt_5min_4test %<>%
                           na.rm=T)) %>% 
     ungroup %>% 
     filter(!is.na(SoilM)) 
+
+rm(Dt_5min_cure_NorthCtr,
+   Dt_5min_cure_NorthCtr4test,
+   Dt_5min_cure_South,
+   Dt_5min_cure_South4test,
+   Dt_5min_cure_SouthCtr,
+   Evt_gap)
