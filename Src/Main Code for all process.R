@@ -94,3 +94,21 @@ New_Event_info=lapply(Evt_Chara$Evt_n,
                       Evt_difs=New_Evt_Differences,
                       AddPC=T) %>% 
     rbindlist(.) 
+
+
+New_Event_info %>% 
+    filter(Jday_diff=='Jday_diff=in_season') %>% 
+    #unite(pattern,AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,RainPd_hr_diff,sep=' ') %>%  # pattern without PC
+    unite(pattern,AvgT_diff,DryPd_hr_diff,Dur_hr_diff,EvtP_diff,Jday_diff,PC_diff,RainPd_hr_diff,sep=' ') %>%   #Pattern without PC
+    left_join(Pt_freq_df,by=c('pattern'='lhs')) %>% 
+    
+    #######################################################
+# Change these criteria to customize the calculation of overall confidence
+    filter(!is.na(rhs),
+           lift>1,
+           #support>0.0001,
+           confidence>=0.6,
+           rhs=='Dist=TRUE') %>% 
+    group_by(Evt_n,rhs) %>% 
+    summarise(Overall_Conf=sum(support*confidence,na.rm=T)/sum(support,na.rm=T),
+              Overall_Sup=sum(support,na.rm=T)) ->results
