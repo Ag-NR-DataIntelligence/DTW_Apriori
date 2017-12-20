@@ -11,9 +11,10 @@ GoldaMeir_Dt_Feb2017 %>%
     geom_point(aes(x=Time_Stamp,y=Est_South_SoilM,color='South'),alpha=0.4,size=1)+
     geom_point(aes(x=Time_Stamp,y=Est_SouthCtr_SoilM,color='South Ctr'),alpha=0.4,size=1)+
     ylab('Soil Moisture with Imperfect Calibration')+
-    ylim(-0.4,0.5)+
+    ylim(-0.4,0.3)+
     xlab('')+
-    scale_color_discrete('Probe')+
+    scale_x_datetime(date_breaks='3 months')+
+    scale_color_discrete('Probe',guide = guide_legend(override.aes = list(size=3)))+
     Plot_theme
 
 ggsave('Images\\All Observation.jpg',width = 10, height = 6, units = c("in"))
@@ -120,10 +121,10 @@ ggsave('Images\\Distance histogram.jpg',width = 8, height = 5, units = c("in"))
 
 # Scatter plot of all Ref event summary measures and categories-----------------------------
 PC=c('PC1','PC1','PC2','PC2')
-AvgDist=c(prin_comp$center['AvgDist']+prin_comp$rotation['AvgDist','PC1']/40,prin_comp$center['AvgDist'],
-          prin_comp$center['AvgDist']+abs(prin_comp$rotation['AvgDist','PC2'])/40,prin_comp$center['AvgDist'])
-SD=c(prin_comp$center['SD']+prin_comp$rotation['SD','PC1']/40,prin_comp$center['SD'],
-     prin_comp$center['SD']-abs(prin_comp$rotation['SD','PC2'])/40,prin_comp$center['SD'])
+AvgDist=c(prin_comp$center['AvgDist']+prin_comp$rotation['AvgDist','PC1']/5,prin_comp$center['AvgDist'],
+          prin_comp$center['AvgDist']+abs(prin_comp$rotation['AvgDist','PC2'])/5,prin_comp$center['AvgDist'])
+SD=c(prin_comp$center['SD']+prin_comp$rotation['SD','PC1']/5,prin_comp$center['SD'],
+     prin_comp$center['SD']-abs(prin_comp$rotation['SD','PC2'])/5,prin_comp$center['SD'])
 DATA <- data.frame(PC, AvgDist, SD)
 
 Dist.df %>% 
@@ -158,7 +159,7 @@ ScatterPlot_Dt %>%
                aes(yintercept=DistThred))+
     geom_text(data=ScatterPlot_Dt %>% filter(col!='Ambiguous') %>% group_by(col) %>% summarize(DistThred=median(AvgDist)),
               aes(0.02,DistThred,label = round(DistThred,3), vjust = -0.5))+
-    scale_color_discrete('')+
+    scale_color_discrete('',guide=guide_legend(override.aes = list(size=3)))+
     scale_linetype_discrete('')+
     ylab('Average Distance')+
     xlab('Standard Deviation')+
@@ -215,7 +216,8 @@ Dt_5min_cure %>%
     
     scale_color_discrete('',
                          breaks=c('20','40','60','80','00','Targeted Event','rn','ns'),
-                         labels=c('0%~20%','20%-40%','40%-60%','60%-80%','80%-100%','Reference Event','Events of Interested PEFD','Events of Other PEFD'))+
+                         labels=c('0%~20%','20%-40%','40%-60%','60%-80%','80%-100%','Reference Event','Events of Interested PEFD','Events of Other PEFD'),
+                         guide = guide_legend(override.aes = list(size=3)))+
     scale_size_continuous(guide='none')+
     labs(y='Soil Moisture with Imperfect Calibration',x='')+
     theme_bw()+
@@ -241,26 +243,28 @@ Dt_5min_cure %>%
     left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
     mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Matched',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatched',Dist)) %>% 
     mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2015-10-1'),ymd('2015-12-31'))|between(Time,ymd('2016-10-1'),ymd('2016-12-31'))) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"))) %>% 
+    filter(data.table::between(Time,ymd('2015-10-1'),ymd('2015-12-01'))|data.table::between(Time,ymd('2016-10-1'),ymd('2016-12-01'))) %>% 
     ggplot()+
     geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
     facet_grid(~year(Time),scales = "free")+
     ylab('Soil Moisture with Imperfect Calibration')+
     xlab('')+
     scale_size(guide = 'none')+
+    scale_shape(guide = 'none')+
     scale_color_manual('',
                        breaks = c( "Ambiguous", 
-                                   "Match", 
-                                   "Not of Sample PEFD","Targeted Event"#,"Unmatch"
+                                   "Matched", 
+                                   "Not of Sample PEFD","Targeted Event"#,"Unmatched"
                                    ),
                        values=c("orange", 
                                 "red", 
                                 "grey","green"#,"blue"
-                                ))+
+                                ),
+                       guide = guide_legend(override.aes = list(size=3)))+
     theme_bw()+
     theme(legend.position="bottom")
 
@@ -283,19 +287,20 @@ Dt_5min_cure %>%
     left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
     mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Matched',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatched',Dist)) %>% 
     mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2016-4-1'),ymd('2016-6-1'))) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"))) %>% 
+    filter(data.table::between(Time,ymd('2016-4-1'),ymd('2016-6-1'))) %>% 
     ggplot()+
     geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
     ylab('Soil Moisture with Imperfect Calibration')+
     xlab('')+
     scale_size(guide = 'none')+
     scale_color_manual('',
-                       breaks = c( "Not of Sample PEFD","Targeted Event","Unmatch"),
-                       values=c( "grey","green","blue"))+
+                       breaks = c( "Not of Sample PEFD","Targeted Event","Unmatched"),
+                       values=c( "grey","green","blue"),
+                       guide = guide_legend(override.aes = list(size=3)))+
     theme_bw()+
     theme(legend.position="bottom")
 
@@ -317,11 +322,11 @@ Dt_5min_cure %>%
     left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
     mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Matched',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatched',Dist)) %>% 
     mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2016-2-20'),ymd('2016-6-1'))) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"))) %>% 
+    filter(data.table::between(Time,ymd('2016-4-01'),ymd('2016-6-1'))) %>% 
     ggplot()+
     geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St),alpha=0.4)+
     ylab('Soil Moisture with Imperfect Calibration')+
@@ -329,8 +334,9 @@ Dt_5min_cure %>%
     #xlim(ymd('2016-4-1'),ymd('2016-6-1'))+
     scale_size(guide = 'none')+
     scale_color_manual('',
-                       breaks = c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"),
-                       values=c("orange", "red", "grey","green","blue"))+
+                       breaks = c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"),
+                       values=c("orange", "red", "grey","green","blue"),
+                       guide = guide_legend(override.aes = list(size=3)))+
     theme_bw()+
     theme(legend.position="bottom")
 
@@ -352,11 +358,11 @@ Dt_5min_cure %>%
     left_join(Evt_Cat[,c('Ref_Evt','Dist')],by=c('Evt_n'='Ref_Evt')) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat$Evt_n,'Dist=Targeted Event',Dist)) %>% 
     mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Matched',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatched',Dist)) %>% 
     mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2015-10-15'),ymd('2015-12-31')) | between(Time,ymd('2016-10-1'),ymd('2016-12-31'))) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"))) %>% 
+    filter(data.table::between(Time,ymd('2015-10-15'),ymd('2015-12-1')) | data.table::between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
     ggplot()+
     geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
     facet_grid(~year(Time),scales = "free")+
@@ -365,14 +371,17 @@ Dt_5min_cure %>%
     scale_size(guide = 'none')+
     scale_shape_manual('',
                        breaks=c('NorthCtr','South','SouthCtr'),
-                       values=c(17,15,16))+
+                       values=c(17,15,16),
+                       guide = guide_legend(override.aes = list(size=3)))+
     scale_color_manual('',
-                       breaks = c( "Ambiguous","Match", "Not of Sample PEFD","Targeted Event","Unmatch"),
-                       values=c("orange", "red", "grey","green","blue"))+
+                       breaks = c( "Ambiguous","Matched", "Not of Sample PEFD","Targeted Event","Unmatched"),
+                       values=c("orange", "red", "grey","green","blue"),
+                       
+                       guide = guide_legend(override.aes = list(size=3)))+
     theme_bw()+
     theme(legend.position="bottom")
 
-ggsave('Images\\Multi Sensors.jpg',width = 8, height = 5, units = c("in"))
+ggsave('Images\\Multi Sensors.jpg',width = 8.5, height = 5, units = c("in"))
 
 
 
@@ -403,11 +412,11 @@ rbind(Dt_5min_cure %>%
     mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat1$Evt_n,'Dist=Targeted Event',Dist)) %>% 
     mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Matched',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatched',Dist)) %>% 
     mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
-    filter(between(Time,ymd('2015-10-15'),ymd('2015-12-1'))|between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"))) %>% 
+    filter(data.table::between(Time,ymd('2015-10-15'),ymd('2015-12-1'))|data.table::between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
     ggplot()+
     geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
     facet_grid(PC~year(Time),scales = "free")+
@@ -416,18 +425,20 @@ rbind(Dt_5min_cure %>%
     scale_size(guide = 'none')+
     scale_shape_manual('',
                        breaks=c('NorthCtr','South','SouthCtr'),
-                       values=c(17,15,16))+
+                       values=c(17,15,16),
+                       guide = guide_legend(override.aes = list(size=3)))+
     scale_color_manual('',
                        breaks = c( "Ambiguous",
-                                   "Match", 
+                                   "Matched", 
                                    "Not of Sample PEFD",
                                    "Targeted Event",
-                                   "Unmatch"),
+                                   "Unmatched"),
                        values=c("orange", 
                                 "red", 
                                 "grey",
                                 "green",
-                                "blue"))+
+                                "blue"),
+                       guide = guide_legend(override.aes = list(size=3)))+
     theme_bw()+
     theme(legend.position="bottom")
 
@@ -485,10 +496,10 @@ rbind(Dt_5min_cure %>%
     mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
     mutate(Dist=ifelse(Evt_n %in% Evt_Cat1$Evt_n,'Dist=Targeted Event',Dist)) %>% 
     mutate(Dist=ifelse(is.na(Dist),'Dist=Not of Sample PEFD',Dist)) %>%
-    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Match',Dist)) %>% 
-    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatch',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=TRUE','Dist=Matched',Dist)) %>% 
+    mutate(Dist=ifelse(Dist=='Dist=FALSE','Dist=Unmatched',Dist)) %>% 
     mutate(Dist=substring(Dist,6)) %>% 
-    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Match", "Not of Sample PEFD","Targeted Event","Unmatch"))) %>% 
+    mutate(Dist=factor(Dist,levels=c("Ambiguous", "Matched", "Not of Sample PEFD","Targeted Event","Unmatched"))) %>% 
     filter(between(Time,ymd('2015-10-15'),ymd('2015-12-1'))|between(Time,ymd('2016-10-1'),ymd('2016-12-1'))) %>% 
     ggplot()+
     geom_point(aes(x=Time,y=SoilM,color=Dist,size=Evt_St,shape=Probe),alpha=0.4)+
@@ -501,10 +512,10 @@ rbind(Dt_5min_cure %>%
                        values=c(17,15,16))+
     scale_color_manual('',
                        breaks = c( "Ambiguous",
-                                   "Match", 
+                                   "Matched", 
                                    "Not of Sample PEFD",
                                    "Targeted Event",
-                                   "Unmatch"),
+                                   "Unmatched"),
                        values=c("orange", 
                                 "red", 
                                 "grey",
@@ -540,10 +551,10 @@ Dt_5min_4test %>%
     #rbind(data.frame(Dt_5min_cure,rhs='Training Data')) %>% 
     mutate(Evt_St=ifelse(lag(Evt_n)<Evt_n,1,0.5)) %>% 
     mutate(rhs=ifelse(is.na(rhs),'Not of existing PEFDs',rhs)) %>% 
-    mutate(rhs=ifelse(rhs=='Dist=TRUE','Match',rhs)) %>% 
-    mutate(rhs=ifelse(rhs=='Dist=FALSE','Unmatch',rhs)) %>% 
+    mutate(rhs=ifelse(rhs=='Dist=TRUE','Matched',rhs)) %>% 
+    mutate(rhs=ifelse(rhs=='Dist=FALSE','Unmatched',rhs)) %>% 
     mutate(rhs=ifelse(rhs=='Dist=Ambiguous','Ambiguous',rhs)) %>% 
-    #mutate(rhs=factor(rhs,levels=c( "Match","Unmatch", "Not Found Pattern","Training Data","Ambiguous"))) %>% 
+    #mutate(rhs=factor(rhs,levels=c( "Matched","Unmatched", "Not Found Pattern","Training Data","Ambiguous"))) %>% 
     #filter(between(Time,ymd('2016-07-10'),ymd('2016-09-11'))) %>% 
     mutate(Confidence=ifelse(is.na(Overall_Conf),'Unconfident to be match',paste0(as.character(Overall_Conf %/% 0.05*5),'%'))) %>% #distinct(Confidence)
 
@@ -554,7 +565,7 @@ Dt_5min_4test %>%
          x='')+
     scale_size(guide='none')+
     # scale_color_manual('',
-    #                    breaks = c( "Match", "Not Found Pattern","Training Data","Unmatch"),
+    #                    breaks = c( "Matched", "Not Found Pattern","Training Data","Unmatched"),
     #                    values=c( "red", "grey","palegreen3","blue")
     # )+
     scale_linetype_manual(guide='none',
