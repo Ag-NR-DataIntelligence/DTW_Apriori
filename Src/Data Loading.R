@@ -1,4 +1,4 @@
-source('https://raw.githubusercontent.com/ZyuAFD/DTW_Apriori/master/Src/External%20Functions%20and%20librarys.R')
+source_url('https://raw.githubusercontent.com/ZyuAFD/DTW_Apriori/master/Src/External%20Functions%20and%20librarys.R')
 
 # Data load
 # Data from Alex on Golda Meir ----------------
